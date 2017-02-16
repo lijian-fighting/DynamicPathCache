@@ -169,51 +169,51 @@ public class Test2 {
 		/**
 		 * rate：0表示成功命中的个数，1表示准确命中的个数，2表示5%,3表示10%,4表示准确pathjoin,5表示5%,6表示10%
 		 */
-		int[] rate1 = new int[]{1, 0, 0, 0, 0, 0, 0};
-		int[] rate2 = new int[]{1, 0, 0, 0, 0, 0, 0};
-		int[] rate3 = new int[]{1, 0, 0, 0, 0, 0, 0};
+		int[] rate1 = new int[]{0, 0, 0, 0, 0, 0, 0};
+		int[] rate2 = new int[]{0, 0, 0, 0, 0, 0, 0};
+		int[] rate3 = new int[]{0, 0, 0, 0, 0, 0, 0};
 		int[] rate4 = new int[]{0, 0, 0, 0, 0, 0, 0};
 		/**
 		 * 用于记录每个测试运行的时间
 		 */
 		long []time = new long[]{0,0,0,0};
-//		for (int  key = 0; key < reult.length;key++) {
-//			int s = Integer.parseInt(q.getmap().get(reult[key]).get(0));
-//			int e = Integer.parseInt(q.getmap().get(reult[key]).get(1));
-//			if (s != e) {
-//				Date dt = new Date();
-////				System.out.println(reult[key]);
-//				cache(s, e, dt, NNI1, NPI1, rate1, 0, reult[key], N, time, A,key,timeMAX,cachesize,iswupdate,ispathjoin);
-//				if(key == size){
-//					break;
-//				}
-//			}
-//		}
-//		if(flag) {
-//			for (int  key = 0; key < reult.length;key++) {
-//				int s = Integer.parseInt(q.getmap().get(reult[key]).get(0));
-//				int e = Integer.parseInt(q.getmap().get(reult[key]).get(1));
-//				if (s != e) {
-//					Date dt = new Date();
-//					cache(s, e, dt, NNI2, NPI2, rate2, 1, reult[key], N, time, A,key,timeMAX,cachesize,iswupdate,ispathjoin);
-//					if(key == size){
-//						break;
-//					}
-//
-//				}
-//			}
-//			for (int  key = 0; key < reult.length;key++) {
-//				int s = Integer.parseInt(q.getmap().get(reult[key]).get(0));
-//				int e = Integer.parseInt(q.getmap().get(reult[key]).get(1));
-//				if (s != e) {
-//					Date dt = new Date();
-//					cache(s, e, dt, NNI3, NPI3, rate3, 2, reult[key], N, time, A,key,timeMAX,cachesize,iswupdate,ispathjoin);
-//					if(key == size){
-//						break;
-//					}
-//				}
-//			}
-//		}
+		for (int  key = 0; key < reult.length;key++) {
+			int s = Integer.parseInt(q.getmap().get(reult[key]).get(0));
+			int e = Integer.parseInt(q.getmap().get(reult[key]).get(1));
+			if (s != e) {
+				Date dt = new Date();
+//				System.out.println(reult[key]);
+				cache(s, e, dt, NNI1, NPI1, rate1, 0, reult[key], N, time, A,key,timeMAX,cachesize,iswupdate,ispathjoin);
+				if(key == size){
+					break;
+				}
+			}
+		}
+		if(flag) {
+			for (int  key = 0; key < reult.length;key++) {
+				int s = Integer.parseInt(q.getmap().get(reult[key]).get(0));
+				int e = Integer.parseInt(q.getmap().get(reult[key]).get(1));
+				if (s != e) {
+					Date dt = new Date();
+					cache(s, e, dt, NNI2, NPI2, rate2, 1, reult[key], N, time, A,key,timeMAX,cachesize,iswupdate,ispathjoin);
+					if(key == size){
+						break;
+					}
+
+				}
+			}
+			for (int  key = 0; key < reult.length;key++) {
+				int s = Integer.parseInt(q.getmap().get(reult[key]).get(0));
+				int e = Integer.parseInt(q.getmap().get(reult[key]).get(1));
+				if (s != e) {
+					Date dt = new Date();
+					cache(s, e, dt, NNI3, NPI3, rate3, 2, reult[key], N, time, A,key,timeMAX,cachesize,iswupdate,ispathjoin);
+					if(key == size){
+						break;
+					}
+				}
+			}
+		}
 		spc.queryset(qs,q,reult,rate4,time,qmap,SPCsize,size,NNI4,NPI4);
 
 		Result temp = new Result(iswupdate,ispathjoin,size,cachesize,(int)(timeMAX/60/1000),A,N,
@@ -280,9 +280,9 @@ public class Test2 {
 							sigmod s = new sigmod();
 //                          s.Revised_Greedy(qs,q,gener,SPCsize,cachesize[p],NNI4,NPI4);
 							s.Revised_Greedy2(qs,q,gener,SPCsize,cachesize[p],NNI4,NPI4,null,null,null,0,isweightupdate);
-//							s.Revised_Greedy2(qs,q,gener,SPCsize,cachesize[p],NNI1,NPI1,PII,null,null,1,isweightupdate);
-//							s.Revised_Greedy2(qs,q,gener,SPCsize,cachesize[p],NNI2,NPI2,null,LRU,null,2,isweightupdate);
-//							s.Revised_Greedy2(qs,q,gener,SPCsize,cachesize[p],NNI3,NPI3,null,null,LFU,3,isweightupdate);
+							s.Revised_Greedy2(qs,q,gener,SPCsize,cachesize[p],NNI1,NPI1,PII,null,null,1,isweightupdate);
+							s.Revised_Greedy2(qs,q,gener,SPCsize,cachesize[p],NNI2,NPI2,null,LRU,null,2,isweightupdate);
+							s.Revised_Greedy2(qs,q,gener,SPCsize,cachesize[p],NNI3,NPI3,null,null,LFU,3,isweightupdate);
 							int[] test;
 							test = Arrays.copyOfRange(all, SPCsize, SPCsize + size[m]);
 //                            System.out.println(test.length);
