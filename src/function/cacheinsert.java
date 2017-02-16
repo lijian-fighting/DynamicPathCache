@@ -9,6 +9,8 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Map.Entry;
 import java.util.HashMap;
 
@@ -19,10 +21,10 @@ import cache.invertedlist;
 import cache.pathinformation;
 
 public class cacheinsert {
-	public long timemax = 30 * 60 * 60;
+	public long timemax;
 	public double A;                                                ;
-	public int size = 5000;
-	public double MAX = 279.0;
+	public int size;
+	public double MAX = 50.0;
 	public double max_value = 0.0;
 
 	/**
@@ -119,10 +121,8 @@ public class cacheinsert {
 		/**
 		 * 存放所有NPI的节点集合
 		 */
-		ArrayList<Integer> id = new ArrayList<Integer>();
-		id.addAll(getallNPIid(nPI));
 		for (int i = 0; i < node.size(); i++) {
-			if (id.contains(node.get(i))) {
+			if (nPI.getmap().keySet().contains(node.get(i))) {
 				nPI.addEdgeId(node.get(i), pathid);
 			} else {
 				ArrayList<Integer> temp = new ArrayList<Integer>();
@@ -142,9 +142,7 @@ public class cacheinsert {
 		/**
 		 * 用于存放当前点点表中的所有点
 		 */
-		ArrayList<Integer> id = new ArrayList<Integer>();
-		id.addAll(getallNNIid(nNI));
-		if (id.contains(pid)) {
+		if (nNI.getmap().keySet().contains(pid)) {
 			//如果NNI中已经包含了key值，则直接在该记录后面增加，如果已经有了，就不添加
 			if (!nNI.getmap().get(pid).contains(node)) {
 				nNI.addEdgeId(pid, node);
@@ -175,28 +173,6 @@ public class cacheinsert {
 				}
 			}
 		}
-	}
-
-	/**
-	 * 获得所有的点点表中的点
-	 * @param nNI 点点表
-	 * @return 返回点集合
-	 */
-	public ArrayList<Integer> getallNNIid(Subgraph nNI) {
-		ArrayList<Integer> id = new ArrayList<Integer>();
-		for (Integer key : nNI.getmap().keySet()) {
-			id.add(key);
-		}
-		return id;
-	}
-
-	// 获得所有npi的id
-	public ArrayList<Integer> getallNPIid(invertedlist nPI) {
-		ArrayList<Integer> id = new ArrayList<Integer>();
-		for (Integer key : nPI.getmap().keySet()) {
-			id.add(key);
-		}
-		return id;
 	}
 
 	/**
@@ -270,48 +246,6 @@ public class cacheinsert {
 	}
 
 	/**
-	 * 对权重进行排序
-	 * @param pII
-	 * @param nPI
-	 * @param time
-	 * @param we
-	 * @param node
-	 * @return
-	 */
-	public List<Map.Entry<Integer, Double>> leastweight(pathinformation pII, invertedlist nPI, Date time, double []we,ArrayList<Integer> node) {
-		/**
-		 * 存放每一条路径的前半部分权重
-		 */
-		Map<Integer, Double> map = new HashMap<Integer,Double>();
-		maxweight(map,pII,nPI,we,node,time);
-		List<Map.Entry<Integer, Double>> weight = new ArrayList<Map.Entry<Integer, Double>>(map.entrySet());
-		Collections.sort(weight, new Comparator<Map.Entry<Integer, Double>>() { // 根据value排序
-			public int compare(Map.Entry<Integer, Double> o1, Map.Entry<Integer, Double> o2) {
-				BigDecimal data1 = new BigDecimal(o1.getValue());
-				BigDecimal data2 = new BigDecimal(o2.getValue());
-				int flag = data1.compareTo(data2);
-				if (flag > 0)
-					return 1;
-				else if (flag == 0)
-					return 0;
-				else
-					return -1;
-			}
-		});
-		return weight;
-	}
-
-	// 比较权重
-	public boolean com(double weight, String s) {
-		String[] t = s.split("=");
-		if (judge(Double.parseDouble(t[1]),weight)) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	/**
 	 * 计算需要删除的节点
 	 * @param map
 	 * @param nPI
@@ -347,30 +281,28 @@ public class cacheinsert {
 		p.Setweight(weight);
 		pII.mapput(pathid, p);
 	}
-	public List<Map.Entry<Integer, Double>> leastweight1(pathinformation pII, Date time) {
-		Map<Integer, Double> map = new HashMap<Integer, Double>();
-		for (Integer key : pII.getmap().keySet()) {
-			map.put(key,
-					pathweight(pII.getmap().get(key).Getweight(),MAX, time,pII.getmap().get(key).Gettime() ));
-		}
-		List<Map.Entry<Integer, Double>> weight = new ArrayList<Map.Entry<Integer, Double>>(map.entrySet());
-		Collections.sort(weight, new Comparator<Map.Entry<Integer, Double>>() { // 根据value排序
-			public int compare(Map.Entry<Integer, Double> o1, Map.Entry<Integer, Double> o2) {
-				BigDecimal data1 = new BigDecimal(o1.getValue());
-				BigDecimal data2 = new BigDecimal(o2.getValue());
-				int flag = data1.compareTo(data2);
-				if (flag > 0)
-					return 1;
-				else if (flag == 0)
-					return 0;
-				else
-					return -1;
-			}
-		});
-		return weight;
-	}
+	
 	public boolean update_MAX(pathinformation pII, Subgraph nNI, invertedlist nPI, ArrayList<Integer> node,
 						  cachedelete delete, ArrayList<Integer> path, Date time) {
+		 Queue<Key_value> H = new PriorityQueue<Key_value>(new Comparator<Key_value>() {
+	            @Override
+	            public int compare(Key_value o1, Key_value o2) {
+	                BigDecimal data1 = new BigDecimal(o1.getvalue());
+	                BigDecimal data2 = new BigDecimal(o2.getvalue());
+	                int flag = data1.compareTo(data2);
+	                if (flag > 0)
+	                    return 1;
+	                else if (flag == 0)
+	                    return 0;
+	                else
+	                    return -1;
+	            }
+	        });
+		 Map<Integer, Double> listweight = new HashMap<Integer, Double>();
+		for (Integer key : pII.getmap().keySet()) {
+			listweight.put(key,
+						pathweight(pII.getmap().get(key).Getweight(),MAX, time,pII.getmap().get(key).Gettime() ));
+		}
 		int sum = 0;
 		for(Integer key : nPI.getmap().keySet()){
 			if(node.contains(key)){
@@ -378,18 +310,20 @@ public class cacheinsert {
 			}
 		}
 		double weight = (sum * 1.0) / node.size();
-		List<Map.Entry<Integer, Double>> listweight = new ArrayList<Map.Entry<Integer, Double>>();
-		listweight.addAll(leastweight1(pII, time)); // 存放现在排序后的路径id和权重
+		for(Integer key:listweight.keySet()){
+			Key_value temp = new Key_value(key,listweight.get(key));
+			H.add(temp);
+		}
+		
 		int allnode = allnode(node, nNI);
 		ArrayList<Integer> map = new ArrayList<Integer>();
 		// 存放每次权重最低的路径
 		int count = 0;
 		while (allnode > size) {
-			if (com((A * (weight / MAX) + (1-A)), listweight.get(count).toString())) {
-				String temp = listweight.get(count).toString();
-				String[] t = temp.split("=");
-				if (!path.contains(Integer.parseInt(t[0]))) {
-					map.add(Integer.parseInt(t[0]));
+			Key_value temp = H.poll();
+			if (judge((A * (weight / MAX) + (1-A)), temp.getvalue())){
+				if (!path.contains(temp.getkey())) {
+					map.add(temp.getkey());
 					allnode = allnode - nodedelete(map, nPI);
 				}
 				count++;
@@ -421,6 +355,20 @@ public class cacheinsert {
 	 */
 	public boolean update(pathinformation pII, Subgraph nNI, invertedlist nPI, ArrayList<Integer> node,
 			cachedelete delete, ArrayList<Integer> path, Date time) {
+		 Queue<Key_value> H = new PriorityQueue<Key_value>(new Comparator<Key_value>() {
+	            @Override
+	            public int compare(Key_value o1, Key_value o2) {
+	                BigDecimal data1 = new BigDecimal(o1.getvalue());
+	                BigDecimal data2 = new BigDecimal(o2.getvalue());
+	                int flag = data1.compareTo(data2);
+	                if (flag > 0)
+	                    return 1;
+	                else if (flag == 0)
+	                    return 0;
+	                else
+	                    return -1;
+	            }
+	        });
 		/**
 		 * weight[0] 表示当前权重，weight1表示最大权重
 		 */
@@ -428,23 +376,26 @@ public class cacheinsert {
 		/**
 		 * 存放根据权重进行排序后的mytest路径信息表
 		 */
-
-		List<Map.Entry<Integer, Double>> listweight = new ArrayList<Map.Entry<Integer, Double>>();
-		listweight.addAll(leastweight(pII,nPI,time,weight,node)); // 存放现在排序后的路径id和权重
+		Map<Integer, Double> listweight = new HashMap<Integer,Double>();
+		maxweight(listweight,pII,nPI,weight,node,time);
+		for(Integer key:listweight.keySet()){
+			Key_value temp = new Key_value(key,listweight.get(key));
+			H.add(temp);
+		}
+		
 		int allnode = allnode(node, nNI);
 		ArrayList<Integer> map = new ArrayList<Integer>();
 		// 存放每次权重最低的路径
 		int count = 0;
 		while (allnode > size) {
-			if (com(weight[0],listweight.get(count).toString())) {
-				String temp = listweight.get(count).toString();
-				String[] t = temp.split("=");
-				if (!path.contains(Integer.parseInt(t[0]))) {
-					map.add(Integer.parseInt(t[0]));
+			Key_value temp = H.poll();
+			if (judge(weight[0],temp.getvalue())) {
+				if (!path.contains(temp.getkey())) {
+					map.add(temp.getkey());
 					allnode = allnode - nodedelete(map, nPI);
 				}
 				count++;
-				if (count == listweight.size()) {
+				if (count == H.size()) {
 					return false;
 				}
 			} else {
@@ -474,12 +425,14 @@ public class cacheinsert {
 	 * @param flag 用于判断进行哪种测试，0表示mytest，1表示lru，2表示lfu
 	 */
 	public void insert(int start, int end, ArrayList<Integer> shortpath, Subgraph nNI, pathinformation pII, invertedlist nPI, Date time,
-			LRUcache lru, LFUcache lfu, int flag,double a) {
+			LRUcache lru, LFUcache lfu, int flag,double a, long timeMax, int cachesize,boolean isweightupdate) {
 		cachedelete delete = new cachedelete();
 		/**
 		 * pathid 用于存放下一个pathid(获取最大的已有size)
 		 */
 		this.A = a;
+		this.timemax = timeMax;
+		this.size = cachesize;
 		int pathid = 0;
 		if(flag == 0){
 			pathid = pII.Getsize() + 1;
@@ -507,8 +460,11 @@ public class cacheinsert {
 			insertNPI(shortpath, nPI, pathid);
 			//根据flag进行对应的路径信息表的插入
 			if (flag == 0) {
-				insertPII(start, end, pII, time, pathid); // 实时更新
-//				insertPII1(start, end, pII, time,pathid, shortpath ,nPI); // 不实时更新
+				if(isweightupdate) {
+					insertPII(start, end, pII, time, pathid);
+				}else {
+					insertPII1(start, end, pII, time, pathid, shortpath, nPI); // 不实时更新
+				}
 			} else if (flag == 1) {
 				insertLRU(start, end, lru, pathid, time);
 			} else if (flag == 2) {
@@ -517,16 +473,19 @@ public class cacheinsert {
 		} else {
 			// 路径已经满了 删除之后再插入
 			if (flag == 0) {
-				if (update(pII, nNI, nPI, shortpath, delete, path, time)) {
-					insertNNI(shortpath, nNI);
-					insertNPI(shortpath, nPI, pathid);
-					insertPII(start, end, pII, time, pathid);
-				}//实时更新
-//				if(update_MAX(pII,nNI,nPI,shortpath,delete,path,time)){
-//					insertNNI(shortpath, nNI);
-//					insertNPI(shortpath, nPI, pathid);
-//				    insertPII1(start, end, pII, time, pathid,shortpath,nPI);
-//				}//不实时更新
+				if(isweightupdate) {
+					if (update(pII, nNI, nPI, shortpath, delete, path, time)) {
+						insertNNI(shortpath, nNI);
+						insertNPI(shortpath, nPI, pathid);
+						insertPII(start, end, pII, time, pathid);
+					}//实时更新
+				} else {
+					if (update_MAX(pII, nNI, nPI, shortpath, delete, path, time)) {
+						insertNNI(shortpath, nNI);
+						insertNPI(shortpath, nPI, pathid);
+						insertPII1(start, end, pII, time, pathid, shortpath, nPI);
+					}//不实时更新
+				}
 			} else if (flag == 1) {
 				if (update1(lru, nNI, nPI, shortpath, delete, path)) {
 					insertNNI(shortpath, nNI);
@@ -555,45 +514,6 @@ public class cacheinsert {
 		}*/
 	}
 
-	public List<Entry<Integer, Date>> sorttime(LRUcache lru) {
-		Map<Integer, Date> map = new HashMap<Integer, Date>();
-		for (Integer key : lru.getmap().keySet()) {
-			map.put(key, lru.getmap().get(key).Gettime());
-		}
-		List<Map.Entry<Integer, Date>> sort = new ArrayList<Map.Entry<Integer, Date>>(map.entrySet());
-		Collections.sort(sort, new Comparator<Map.Entry<Integer, Date>>() { // 根据value排序
-			public int compare(Map.Entry<Integer, Date> o1, Map.Entry<Integer, Date> o2) {
-				int result = o1.getValue().compareTo(o2.getValue());
-				if (result > 0)
-					return 1;
-				else if (result == 0)
-					return 0;
-				else
-					return -1;
-			}
-		});
-		return sort;
-	}
-
-	public List<Entry<Integer, Integer>> sortcount(LFUcache lfu) {
-		Map<Integer, Integer> map = new HashMap<Integer, Integer>();
-		for (Integer key : lfu.getmap().keySet()) {
-			map.put(key, lfu.getmap().get(key).Getcount());
-		}
-		List<Map.Entry<Integer, Integer>> sort = new ArrayList<Map.Entry<Integer, Integer>>(map.entrySet());
-		Collections.sort(sort, new Comparator<Map.Entry<Integer, Integer>>() { // 根据value排序
-			public int compare(Map.Entry<Integer, Integer> o1, Map.Entry<Integer, Integer> o2) {
-				int result = o1.getValue() - o2.getValue();
-				if (result > 0)
-					return 1;
-				else if (result == 0)
-					return 0;
-				else
-					return -1;
-			}
-		});
-		return sort;
-	}
 
 	/**
 	 * 进行lfu缓存更新
@@ -605,23 +525,35 @@ public class cacheinsert {
 	 * @param path 存放那些已经在缓存中，并且起点和终点都在API返回节点中的路径编号
 	 * @return 能否更新lfu
 	 */
-	private boolean update2(LFUcache lfu, Subgraph nNI, invertedlist nPI, ArrayList<Integer> node, cachedelete delete,
+	public boolean update2(LFUcache lfu, Subgraph nNI, invertedlist nPI, ArrayList<Integer> node, cachedelete delete,
 			ArrayList<Integer> path) {
-
+		 Queue<Key_count> H = new PriorityQueue<Key_count>(new Comparator<Key_count>() {
+	            @Override
+	            public int compare(Key_count o1, Key_count o2) {
+	            	int flag = o1.getcount() - o2.getcount();
+	                if (flag > 0)
+	                    return 1;
+	                else if (flag == 0)
+	                    return 0;
+	                else
+	                    return -1;
+	            }
+	        });
 		int allnode = allnode(node, nNI);
-		List<Map.Entry<Integer, Integer>> listtime = new ArrayList<Map.Entry<Integer, Integer>>();
-		listtime.addAll(sortcount(lfu));
+		for(Integer key:lfu.getmap().keySet()){
+			Key_count temp = new Key_count(key,lfu.getmap().get(key).Getcount());
+			H.add(temp);
+		}
 		ArrayList<Integer> map = new ArrayList<Integer>();
 		int count = 0;
 		while (allnode > size) {
-			String temp = listtime.get(count).toString();
-			String[] t = temp.split("=");
-			if (!path.contains(Integer.parseInt(t[0]))) {
-				map.add(Integer.parseInt(t[0]));
+			Key_count temp = H.poll();
+			if (!path.contains(temp.getkey())) {
+				map.add(temp.getkey());
 				allnode = allnode - nodedelete(map, nPI);
 			}
 			count++;
-			if (count == listtime.size()) {
+			if (count == H.size()) {
 				return false;
 			}
 		}
@@ -644,24 +576,37 @@ public class cacheinsert {
 	 * @param path 存放那些已经在缓存中，并且起点和终点都在API返回节点中的路径编号
 	 * @return 返回能否更新
 	 */
-	private boolean update1(LRUcache lru, Subgraph nNI, invertedlist nPI, ArrayList<Integer> node, cachedelete delete, ArrayList<Integer> path) {
+	public boolean update1(LRUcache lru, Subgraph nNI, invertedlist nPI, ArrayList<Integer> node, cachedelete delete, ArrayList<Integer> path) {
 		/**
 		 * 存放当前所有节点
 		 */
+		 Queue<Key_Date> H = new PriorityQueue<Key_Date>(new Comparator<Key_Date>() {
+	            @Override
+	            public int compare(Key_Date o1, Key_Date o2) {
+	            	int flag = o1.gettime().compareTo(o2.gettime());
+	                if (flag > 0)
+	                    return 1;
+	                else if (flag == 0)
+	                    return 0;
+	                else
+	                    return -1;
+	            }
+	        });
 		int allnode = allnode(node, nNI);
-		List<Map.Entry<Integer, Date>> listtime = new ArrayList<Map.Entry<Integer, Date>>();
-		listtime.addAll(sorttime(lru));
+		for(Integer key:lru.getmap().keySet()){
+			Key_Date temp = new Key_Date(key,lru.getmap().get(key).Gettime());
+			H.add(temp);
+		}
 		ArrayList<Integer> map = new ArrayList<Integer>();
 		int count = 0;
 		while (allnode > size) {
-			String temp = listtime.get(count).toString();
-			String[] t = temp.split("=");
-			if (!path.contains(Integer.parseInt(t[0]))) {
-				map.add(Integer.parseInt(t[0]));
+			Key_Date temp = H.poll();
+			if (!path.contains(temp.getkey())) {
+				map.add(temp.getkey());
 				allnode = allnode - nodedelete(map, nPI);
 			}
 			count++;
-			if (count == listtime.size()) {
+			if (count == H.size()) {
 				return false;
 			}
 		}
@@ -674,7 +619,7 @@ public class cacheinsert {
 		return true;
 	}
 
-	private void insertLFU(int start, int end, LFUcache lfu, int pathid,  Date time) {
+	public void insertLFU(int start, int end, LFUcache lfu, int pathid,  Date time) {
 		LFUcache p = new LFUcache();
 		p.Setpathid(pathid);
 		p.Setsid(start);
@@ -683,7 +628,7 @@ public class cacheinsert {
 		lfu.mapput(pathid, p);
 	}
 
-	private void insertLRU(int start, int end, LRUcache lru, int pathid,  Date time) {
+	public void insertLRU(int start, int end, LRUcache lru, int pathid,  Date time) {
 		LRUcache p = new LRUcache();
 		p.Setpathid(pathid);
 		p.Setsid(start);
@@ -694,4 +639,33 @@ public class cacheinsert {
 	public double getmax_value(){
 		return this.max_value;
 	}
+}
+
+class Key_Date{
+    private int key;
+    private Date time;
+    public int getkey(){
+        return this.key;
+    }
+    public Date gettime(){
+        return this.time;
+    }
+    Key_Date(int key,Date time){
+        this.key = key;
+        this.time = time;
+    }
+}
+class Key_count{
+    private int key;
+    private int count;
+    public int getkey(){
+        return this.key;
+    }
+    public int getcount(){
+        return this.count;
+    }
+    Key_count(int key,int count){
+        this.key = key;
+        this.count = count;
+    }
 }

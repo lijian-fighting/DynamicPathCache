@@ -18,7 +18,7 @@ public class loadpoint {
 		try { //
 			// 打开一个写文件器，构造函数中的第二个参数true表示以追加形式写文件,false表示覆盖的方式写入
 			writer = new FileWriter("F:/dataset/study/point.txt", true);
-			String content = a + " "+b +"\r\n";
+			String content = a + " "+b +"\n";
 			writer.write(content);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -45,7 +45,7 @@ public class loadpoint {
 	public void load(Query qs, Query q,Map<Integer,String> qmap) {
 		BufferedReader reader = null;
 		try {
-			reader = new BufferedReader(new FileReader("/home/zhujie/lijian/newdata.txt"));
+			reader = new BufferedReader(new FileReader("/root/lijian/temp.txt"));
 			String tempString = null;
 			ArrayList<String> qslist = new ArrayList<String>();
 			while ((tempString = reader.readLine()) != null) {		
@@ -86,6 +86,29 @@ public class loadpoint {
 			}
 		}
 	}
+	public void loadseed(int []temp) {
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new FileReader("/root/lijian/seed.txt"));
+			String tempString = null;
+			int count = 0;
+			while ((tempString = reader.readLine()) != null) {
+				temp[count] = Integer.parseInt(tempString.trim());
+				count ++;
+			}
+			reader.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e1) {
+				}
+			}
+		}
+	}
+
 	public int getsize(){
 		/*for(Integer key:pointmap.keySet()){
 			System.out.println("key ="+key+"value ="+ pointmap.get(key));

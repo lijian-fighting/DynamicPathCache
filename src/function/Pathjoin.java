@@ -14,7 +14,6 @@ import java.util.Map;
  * @Modified By:
  */
 public class Pathjoin {
-    private double n = 1.5;
     private static double EARTH_RADIUS = 6378137; // radius of earth
     private static final int DEF_DIV_SCALE = 10;
 

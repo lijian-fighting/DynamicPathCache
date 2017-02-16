@@ -1,7 +1,6 @@
 package function;
 
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.*;
 
 import cache.LFUcache;
 import cache.LRUcache;
@@ -62,7 +61,8 @@ public class cachesearch {
 			 * 对于某个点的所有邻接点，如果这个点包含跟起始节点相同的路径编号，并且shortpath中没有这个点，就将这个点放入选择中
 			 */
 			for (int i = 0; i < nNI.getmap().get(start).size(); i++) {
-				if (ispath(pathid, nNI.getmap().get(start).get(i), nPI) && !shortpath.contains(nNI.getmap().get(start).get(i))) {
+				if (ispath(pathid, nNI.getmap().get(start).get(i), nPI)
+						&& !shortpath.contains(nNI.getmap().get(start).get(i))) {
 					choice.add(nNI.getmap().get(start).get(i));
 				}
 			}
@@ -81,31 +81,13 @@ public class cachesearch {
 					break;
 				}else{
 					for (int j = 0; j < shortpath.size(); j++) {
-						if (shortpath.get(j) == choice.get(i)) {
+						if (shortpath.get(j) .equals( choice.get(i))) {
 							shortpath.remove(j);
 						}
 					}
 				}
 			}
 		}
-	}
-
-	/**
-	 * 用于进行时间判断，并返回最终路径编号
-	 * @param time 时间集合
-	 * @param temp 路径集合
-	 * @return 返回时间最新的路径编号
-	 */
-	public int backtime(ArrayList<Date> time, ArrayList<Integer> temp) {
-		int k = 0; // 用于标记最小时间的下标
-		Date latest = time.get(0);
-		for (int i = 1; i < time.size(); i++) {
-			if (time.get(i).compareTo(latest) > 0) {
-				latest = time.get(i);
-				k = i;
-			}
-		}
-		return temp.get(k);
 	}
 
 	/**
@@ -118,17 +100,35 @@ public class cachesearch {
 	 * @return 返回最新路径的编号
 	 */
 	public int latestpath(ArrayList<Integer> temp, pathinformation pII, LRUcache lru, LFUcache lfu, int judge) {
-		ArrayList<Date> time = new ArrayList<Date>();
-		for (int i = 0; i < temp.size(); i++) {
-			if (judge == 0) {
-				time.add(pII.getmap().get(temp.get(i)).Gettime());
-			} else if (judge == 1) {
-				time.add(lru.getmap().get(temp.get(i)).Gettime());
-			} else if (judge == 2) {
-				time.add(lfu.getmap().get(temp.get(i)).Gettime());
+		Queue<Key_Date> H = new PriorityQueue<Key_Date>(new Comparator<Key_Date>() {
+			@Override
+			public int compare(Key_Date o1, Key_Date o2) {
+				int flag = o1.gettime().compareTo(o2.gettime());
+				if (flag < 0)
+					return 1;
+				else if (flag == 0)
+					return 0;
+				else
+					return -1;
+			}
+		});
+		if(judge == 0) {
+			for (Integer key : temp) {
+				Key_Date t = new Key_Date(key, pII.getmap().get(key).Gettime());
+				H.add(t);
+			}
+		}else if(judge == 1){
+			for(Integer key:temp){
+				Key_Date t = new Key_Date(key,lru.getmap().get(key).Gettime());
+				H.add(t);
+			}
+		}else if(judge == 2){
+			for(Integer key:temp){
+				Key_Date t = new Key_Date(key,lfu.getmap().get(key).Gettime());
+				H.add(t);
 			}
 		}
-		return backtime(time, temp);
+		return H.poll().getkey();
 	}
 
 	/**
@@ -151,11 +151,7 @@ public class cachesearch {
 		/**
 		 * id用于获得所有的缓存中的节点
 		 */
-		ArrayList<Integer> id = new ArrayList<Integer>();
-		for (Integer key : nNI.getmap().keySet()) {
-			id.add(key);
-		}
-		if ((id.contains(start)) && (id.contains(end))) {
+		if ((nNI.getmap().keySet().contains(start)) && (nNI.getmap().keySet().contains(end))) {
 			/**
 			 * coincide用于存放起点和终点的相同路径
 			 */

@@ -1,16 +1,15 @@
 package function;
 
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Random;
 
 /**
- * Created by lijian on 2016/12/6.
+ * Created by lijian-mac on 17/1/23.
  */
-public class test {
+public class seed {
     public int[] randomArray(int min,int max,int n){
         int len = max-min+1;
         if(max < min || n > len){
@@ -34,12 +33,13 @@ public class test {
         }
         return result;
     }
-    public void write(String a){
+
+    public void writepoint(int a){
         FileWriter writer = null;
         try { //
             // 打开一个写文件器，构造函数中的第二个参数true表示以追加形式写文件,false表示覆盖的方式写入
-            writer = new FileWriter("F:/dataset/study/seed.txt", true);
-            String content = a + " " +"\r\n";
+            writer = new FileWriter("//Users/lijian-mac/Desktop/zhouyy/study/seed.txt", true);
+            String content = String.valueOf(a)+"\n";
             writer.write(content);
         } catch (IOException e) {
             e.printStackTrace();
@@ -53,11 +53,12 @@ public class test {
             }
         }
     }
-    public static void main(String[] args) throws ParseException {
-        test t = new test();
-        int[] reult = t.randomArray(1,17640,17640); // 生成一组随机序列
-        for (int key : reult) {
-            t.write(String.valueOf(key));
+
+    public static void main(String[] args) {
+        seed s = new seed();
+        int []result = s.randomArray(1,11497,11497);
+        for(int i = 0;i<result.length;i++){
+            s.writepoint(result[i]);
         }
     }
 }
