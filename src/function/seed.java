@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -38,8 +39,8 @@ public class seed {
         FileWriter writer = null;
         try { //
             // 打开一个写文件器，构造函数中的第二个参数true表示以追加形式写文件,false表示覆盖的方式写入
-            writer = new FileWriter("//Users/lijian-mac/Desktop/zhouyy/study/seed.txt", true);
-            String content = String.valueOf(a)+"\n";
+            writer = new FileWriter("F:/dataset/study/seed1.txt", true);
+            String content = String.valueOf(a)+"\r\n";
             writer.write(content);
         } catch (IOException e) {
             e.printStackTrace();
@@ -56,7 +57,8 @@ public class seed {
 
     public static void main(String[] args) {
         seed s = new seed();
-        int []result = s.randomArray(1,11497,11497);
+        int []result = s.randomArray(4497,11496,7000);
+//        Arrays.sort(result);
         for(int i = 0;i<result.length;i++){
             s.writepoint(result[i]);
         }

@@ -28,11 +28,11 @@ public class Try {
 
 	public static int keyNum = 0;
 
-	public static void write(ArrayList<String> qs) {
+	public static void write(ArrayList<String> qs,int time) {
 		FileWriter writer = null;
 		try {
 			// 打开一个写文件器，构造函数中的第二个参数true表示以追加形式写文件,false表示覆盖的方式写入
-			writer = new FileWriter("F:/dataset/study/newdata3.txt", true);
+			writer = new FileWriter("F:/dataset/study/newdata2.txt", true);
 			String content = "";
 			for (int i = 0; i < qs.size(); i++) {
 				if (i != qs.size() - 1) {
@@ -43,9 +43,9 @@ public class Try {
 					}
 				} else {
 					if ((i % 5) != 4) {
-						content += qs.get(i) + " " + "end" + "\r\n";
+						content += qs.get(i) + " " + "end"+":"+time + "\r\n";
 					}else {
-						content += qs.get(i) + "\r\n"+ "end" + "\r\n";
+						content += qs.get(i) + "\r\n"+ "end"+":"+time+ "\r\n";
 					}
 				}
 			}
@@ -94,7 +94,7 @@ public class Try {
 		return -1;
 	}*/
 	
-	public void request(String start, String end)throws IOException {
+	public void request(String start, String end,int time)throws IOException {
 		String result = "";
 		BufferedReader in = null;
 
@@ -144,7 +144,7 @@ public class Try {
 				}
 			}
 			System.out.println();
-			write(point);
+			write(point,time);
 			/*System.out.println();
 			if (qslist.size() != 0) {
 				qs.mapput(qslist);

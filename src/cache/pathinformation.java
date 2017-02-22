@@ -9,7 +9,7 @@ public class pathinformation implements Cloneable{
 	private int pathid;
 	private int sid;
 	private int eid;
-	private Date time;
+	private int time;
 	private double weight;
 	private Map<Integer,pathinformation> map = new HashMap<Integer,pathinformation>();
 	public void Setpathid(int id){
@@ -33,11 +33,11 @@ public class pathinformation implements Cloneable{
 	public int Geteid(){
 		return this.eid;
 	}
-	public void Settime(Date date){
+	public void Settime(int date){
 		this.time = date;
 	}
 	
-	public Date Gettime(){
+	public int Gettime(){
 		return this.time;
 	}
 	public void Setweight(double we){

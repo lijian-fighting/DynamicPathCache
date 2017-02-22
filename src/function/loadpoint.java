@@ -17,8 +17,8 @@ public class loadpoint {
 		FileWriter writer = null;
 		try { //
 			// 打开一个写文件器，构造函数中的第二个参数true表示以追加形式写文件,false表示覆盖的方式写入
-			writer = new FileWriter("F:/dataset/study/point.txt", true);
-			String content = a + " "+b +"\n";
+			writer = new FileWriter("F:/dataset/study/log.txt", true);
+			String content = a+" "+b +"\r\n";
 			writer.write(content);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -45,14 +45,16 @@ public class loadpoint {
 	public void load(Query qs, Query q,Map<Integer,String> qmap) {
 		BufferedReader reader = null;
 		try {
-			reader = new BufferedReader(new FileReader("/root/lijian/temp.txt"));
+//			reader = new BufferedReader(new FileReader("/root/lijian/temp.txt"));
+			reader = new BufferedReader(new FileReader("F:/dataset/study/temp.txt"));
 			String tempString = null;
 			ArrayList<String> qslist = new ArrayList<String>();
+			String time = null;
 			while ((tempString = reader.readLine()) != null) {		
 				String[] temp = tempString.split("\\s+");
 				for (int i = 0; i < temp.length; i++) {
 					String degree = temp[i];
-					if(!degree.equals("end")){
+					if(!degree.contains("end")){
 						int size = pointmap.size()+1;
 						int flag = check(degree);
 						if( flag == -1 ){
@@ -63,6 +65,9 @@ public class loadpoint {
 							size = flag;
 						}
 						qslist.add(String.valueOf(size));
+					}else{
+						String []arrival = degree.split(":");
+						time = arrival[1];
 					}
 				}
 				if(tempString.contains("end")){
@@ -70,6 +75,7 @@ public class loadpoint {
 					ArrayList<String> qlist = new ArrayList<String>();
 					qlist.add(qslist.get(0));
 					qlist.add(qslist.get(qslist.size()-1));
+					qlist.add(time);
 					q.mapput(qlist);
 					qslist = new ArrayList<String>();
 				}
@@ -89,7 +95,8 @@ public class loadpoint {
 	public void loadseed(int []temp) {
 		BufferedReader reader = null;
 		try {
-			reader = new BufferedReader(new FileReader("/root/lijian/seed.txt"));
+//			reader = new BufferedReader(new FileReader("/root/lijian/seed.txt"));
+			reader = new BufferedReader(new FileReader("F:/dataset/study/seed.txt"));
 			String tempString = null;
 			int count = 0;
 			while ((tempString = reader.readLine()) != null) {

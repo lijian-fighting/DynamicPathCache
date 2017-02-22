@@ -10,7 +10,7 @@ public class LFUcache {
 	private int sid;
 	private int eid;
 	private int count = 0;
-	private Date time;
+	private int time;
 	private Map<Integer,LFUcache> map = new HashMap<Integer,LFUcache>();
 	public void Setpathid(int id){
 		this.pathid = id;
@@ -41,11 +41,11 @@ public class LFUcache {
 		return this.count;
 	}
 	
-	public void Settime(Date date){
+	public void Settime(int date){
 		this.time = date;
 	}
 	
-	public Date Gettime(){
+	public int Gettime(){
 		return this.time;
 	}
 	public Map<Integer, LFUcache> getmap(){

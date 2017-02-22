@@ -26,20 +26,18 @@ public class cachesearch {
 		return;
 	}
 
-	/**
-	 * 用于判断某个点是否属于某条路径
-	 * @param pathid 路径编号
-	 * @param pid 点的编号
-	 * @param nPI 点边表
-	 * @return true表示属于，false表示不属于
-	 */
 	public boolean ispath(int pathid, int pid, invertedlist nPI) {
-		if (nPI.getmap().get(pid).contains(pathid)) {
+//		System.out.println(nPI.getmap().size());
+//		if(nPI.getmap().keySet().contains(pid)){
+//			System.out.println("yes");
+//		}else{
+//			System.out.println("no");
+//		}
+		if (nPI.getmap().keySet().contains(pid)&&nPI.getmap().get(pid).contains(pathid)) {
 			return true;
 		}
 		return false;
 	}
-
 	/**
 	 * 用于在缓存中搜索路径
 	 * @param start 查询起点
@@ -49,8 +47,32 @@ public class cachesearch {
 	 * @param pathid 路径编号
 	 * @param shortpath 存放搜索结果
 	 */
-	public void search(int start, int end, Subgraph nNI, invertedlist nPI, int pathid, ArrayList<Integer> shortpath) {
 
+	public void search(int start, int end, Subgraph nNI, invertedlist nPI, int pathid, ArrayList<Integer> shortpath) {
+//		Node flag = new Node(0);
+//		Node s = new Node(start,flag);
+//		Node p = flag;
+//		Queue<Node> choice = new LinkedList<Node>();
+//		choice.offer(s);
+//		while(!choice.isEmpty()){
+//			Node temp = choice.peek();
+//			if(temp.key == end){
+//				p = temp;
+//				break;
+//			}
+//			for (int i = 0; i < nNI.getmap().get(temp.key).size(); i++) {
+//				if (nPI.getmap().get(nNI.getmap().get(temp.key).get(i)).contains(pathid)&&nNI.getmap().get(temp.key).get(i)!= temp.pre.key){
+//					Node in = new Node(nNI.getmap().get(temp.key).get(i),temp);
+//					choice.offer(in);
+//				}
+//			}
+//			choice.poll();
+//		}
+//		while(p.key != 0){
+//			shortpath.add(p.key);
+//			p = p.pre;
+//		}
+//		Collections.reverse(shortpath);
 		ArrayList<Integer> choice = new ArrayList<Integer>();
 		if (start == end) {
 			shortpath.add(end);
@@ -89,7 +111,6 @@ public class cachesearch {
 			}
 		}
 	}
-
 	/**
 	 * 用于计算多条相同路径中最新的一条路经
 	 * @param temp 相同路径集合
@@ -100,35 +121,31 @@ public class cachesearch {
 	 * @return 返回最新路径的编号
 	 */
 	public int latestpath(ArrayList<Integer> temp, pathinformation pII, LRUcache lru, LFUcache lfu, int judge) {
-		Queue<Key_Date> H = new PriorityQueue<Key_Date>(new Comparator<Key_Date>() {
-			@Override
-			public int compare(Key_Date o1, Key_Date o2) {
-				int flag = o1.gettime().compareTo(o2.gettime());
-				if (flag < 0)
-					return 1;
-				else if (flag == 0)
-					return 0;
-				else
-					return -1;
-			}
-		});
+		int max = 0;
+		int pathid = 0;
 		if(judge == 0) {
 			for (Integer key : temp) {
-				Key_Date t = new Key_Date(key, pII.getmap().get(key).Gettime());
-				H.add(t);
+				if(pII.getmap().get(key).Gettime()>max){
+					max = pII.getmap().get(key).Gettime();
+					pathid = pII.getmap().get(key).Getpathid();
+				}
 			}
 		}else if(judge == 1){
 			for(Integer key:temp){
-				Key_Date t = new Key_Date(key,lru.getmap().get(key).Gettime());
-				H.add(t);
+				if(lru.getmap().get(key).Gettime()>max){
+					max = lru.getmap().get(key).Gettime();
+					pathid = lru.getmap().get(key).Getpathid();
+				}
 			}
 		}else if(judge == 2){
 			for(Integer key:temp){
-				Key_Date t = new Key_Date(key,lfu.getmap().get(key).Gettime());
-				H.add(t);
+				if(lfu.getmap().get(key).Gettime()>max){
+					max = lfu.getmap().get(key).Gettime();
+					pathid = lfu.getmap().get(key).Getpathid();
+				}
 			}
 		}
-		return H.poll().getkey();
+		return pathid;
 	}
 
 	/**
@@ -146,12 +163,15 @@ public class cachesearch {
 	 * @param flag 用于判断是否可以进行缓存更新，一般查询会更新缓存，而pathjoin不进行缓存更新
 	 * @return 返回查询结果，0表示没有查到相关点，1表示没有找到缓存，2表示找到缓存
 	 */
-	public int path(int start, int end, Subgraph nNI, pathinformation pII, invertedlist nPI, Date time, LRUcache lru,
-			LFUcache lfu, int judge, ArrayList<Integer> shortestpath,boolean flag) {
+	public int path(int start, int end, Subgraph nNI, pathinformation pII, invertedlist nPI, int time, LRUcache lru,
+					LFUcache lfu, int judge, ArrayList<Integer> shortestpath,boolean flag) {
 		/**
 		 * id用于获得所有的缓存中的节点
 		 */
-		if ((nNI.getmap().keySet().contains(start)) && (nNI.getmap().keySet().contains(end))) {
+		if ((nNI.getmap().keySet().contains(start))
+				&& (nNI.getmap().keySet().contains(end))
+				&&(nPI.getmap().keySet().contains(start))
+				&& (nPI.getmap().keySet().contains(end))) {
 			/**
 			 * coincide用于存放起点和终点的相同路径
 			 */
@@ -161,6 +181,11 @@ public class cachesearch {
 				//可以找到两个点，但是没有共同路径就是指无法命中缓存，则返回1，用于进行pathjoin
 				return 1;
 			} else if (coincide.size() == 1) {
+//				System.out.println("1");
+//				System.out.println(coincide.get(0));
+//				if(nPI.getmap().get(start).contains(coincide.get(0))&&nPI.getmap().get(end).contains(coincide.get(0))){
+//					System.out.println("yes");
+//				}
 				//只有一条共同路径，就直接进行搜索
 				search(start, end, nNI, nPI, coincide.get(0), shortestpath);
 				/**

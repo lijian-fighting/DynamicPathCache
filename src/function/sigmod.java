@@ -45,14 +45,6 @@ public class sigmod {
         }
     }
 
-    /**
-     * 返回缓存中已有的节点数
-     *
-     * @return
-     */
-    public int allnode(Subgraph NNI) {
-        return NNI.getmap().size();
-    }
 
     /**
      * 判断两个double类型数据的大小
@@ -77,7 +69,7 @@ public class sigmod {
         if (NNI.getmap().keySet().contains(pid)) {
             //如果NNI中已经包含了key值，则直接在该记录后面增加，如果已经有了，就不添加
             if (!NNI.getmap().get(pid).contains(node)) {
-                NNI.addEdgeId(pid, node);
+                NNI.getmap().get(pid).add(node);
             }
         } else {
             //如果NNI没有包含key值，则新增这条记录
@@ -95,8 +87,8 @@ public class sigmod {
                 } else if (i == node.size() - 1) {
                     in(Integer.parseInt(node.get(i)), Integer.parseInt(node.get(i - 1)),NNI);
                 } else {
-                    in(Integer.parseInt(node.get(i)), Integer.parseInt(node.get(i + 1)),NNI);
                     in(Integer.parseInt(node.get(i)), Integer.parseInt(node.get(i - 1)),NNI);
+                    in(Integer.parseInt(node.get(i)), Integer.parseInt(node.get(i + 1)),NNI);
                 }
             }
         }
@@ -108,56 +100,11 @@ public class sigmod {
          */
         for (int i = 0; i < node.size(); i++) {
             if (NPI.getmap().keySet().contains(Integer.parseInt(node.get(i)))) {
-                NPI.addEdgeId(Integer.parseInt(node.get(i)), pathid);
+                NPI.getmap().get((Integer.parseInt(node.get(i)))).add(pathid);
             } else {
                 ArrayList<Integer> temp = new ArrayList<Integer>();
                 temp.add(pathid);
                 NPI.mapput(Integer.parseInt(node.get(i)), temp);
-            }
-        }
-    }
-
-    public void Revised_Greedy(Query qs, Query q, int []result,int size,int cachesize,Subgraph NNI,invertedlist NPI) {
-        Queue<Key_value> H = new PriorityQueue<Key_value>(new Comparator<Key_value>() {
-            @Override
-            public int compare(Key_value o1, Key_value o2) {
-                BigDecimal data1 = new BigDecimal(o1.getvalue());
-                BigDecimal data2 = new BigDecimal(o2.getvalue());
-                int flag = data1.compareTo(data2);
-                if (flag < 0)
-                    return 1;
-                else if (flag == 0)
-                    return 0;
-                else
-                    return -1;
-            }
-        });
-        List<Integer> cache = new ArrayList<Integer>();
-
-//        cacheinsert insert = new cacheinsert();
-        for (int key = 0;key<size;key++) {
-            int s = Integer.parseInt(qs.getmap().get(result[key]).get(0));
-            int e = Integer.parseInt(qs.getmap().get(result[key]).get(qs.getmap().get(result[key]).size() - 1));
-            if (s != e) {
-                double cost = getcost(result[key], qs, q,result,size,cache);
-                Key_value temp = new Key_value(result[key], cost);
-                H.add(temp);
-            }
-        }
-
-        while ((allnode(NNI) <= cachesize) && (!H.isEmpty())) {
-            Key_value temp = H.poll();
-            int pathid = temp.getkey();
-            double pathcost = getcost(pathid, qs, q,result,size,cache);
-            if (judge(temp.getvalue(), pathcost)) {
-                if ((cachesize - allnode(NNI) >= qs.getmap().get(pathid).size())) {
-                    cache.add(pathid);
-                    insertNNI(qs.getmap().get(pathid),NNI);
-                    insertNPI(qs.getmap().get(pathid), pathid,NPI);
-                }
-            } else {
-                Key_value temp1 = new Key_value(pathid, pathcost);
-                H.add(temp1);
             }
         }
     }
@@ -175,7 +122,7 @@ public class sigmod {
         return shortpath;
     }
 
-    public void Revised_Greedy2(Query qs, Query q, int []result, int size, int cachesize, Subgraph NNI, invertedlist NPI, pathinformation PII,
+    public void Revised_Greedy2(Query qs, Query q, int []result, int size, int cachesize, Subgraph NNI,invertedlist NPI, pathinformation PII,
                                 LRUcache lru, LFUcache lfu,int judge,boolean isweightupdate) {
         Queue<Key_value> H = new PriorityQueue<Key_value>(new Comparator<Key_value>() {
             @Override
@@ -203,26 +150,25 @@ public class sigmod {
             }
         }
 
-        while ((allnode(NNI) <= cachesize) && (!H.isEmpty())) {
+        while ((NNI.getmap().size()<= cachesize) && (!H.isEmpty())) {
             Key_value temp = H.poll();
             int pathid = temp.getkey();
             double pathcost = getcost(pathid, qs, q,result,size,cache);
             if (judge(temp.getvalue(), pathcost)) {
-                if ((cachesize - allnode(NNI) >= qs.getmap().get(pathid).size())) {
+                if ((cachesize - NNI.getmap().size() >= qs.getmap().get(pathid).size())) {
                     cache.add(pathid);
-                    Date time = new Date();
                     insertNNI(qs.getmap().get(pathid),NNI);
                     insertNPI(qs.getmap().get(pathid), pathid,NPI);
                     if(judge == 1){
                         if(isweightupdate) {
-                            insert.insertPII(Integer.parseInt(q.getmap().get(pathid).get(0)),Integer.parseInt(q.getmap().get(pathid).get(1)),PII,time,pathid);
+                            insert.insertPII(Integer.parseInt(q.getmap().get(pathid).get(0)),Integer.parseInt(q.getmap().get(pathid).get(1)),PII,Integer.parseInt(q.getmap().get(pathid).get(2)),pathid);
                         }else {
-                            insert.insertPII1(Integer.parseInt(q.getmap().get(pathid).get(0)), Integer.parseInt(q.getmap().get(pathid).get(1)), PII, time, pathid, shortpath1(pathid, qs), NPI);
+                            insert.insertPII1(Integer.parseInt(q.getmap().get(pathid).get(0)), Integer.parseInt(q.getmap().get(pathid).get(1)), PII, Integer.parseInt(q.getmap().get(pathid).get(2)), pathid, shortpath1(pathid, qs), NPI);
                         }
                     }else if(judge == 2){
-                        insert.insertLRU(Integer.parseInt(q.getmap().get(pathid).get(0)),Integer.parseInt(q.getmap().get(pathid).get(1)),lru,pathid,time);
+                        insert.insertLRU(Integer.parseInt(q.getmap().get(pathid).get(0)),Integer.parseInt(q.getmap().get(pathid).get(1)),lru,pathid,Integer.parseInt(q.getmap().get(pathid).get(2)));
                     }else if(judge == 3){
-                        insert.insertLFU(Integer.parseInt(q.getmap().get(pathid).get(0)),Integer.parseInt(q.getmap().get(pathid).get(1)),lfu,pathid,time);
+                        insert.insertLFU(Integer.parseInt(q.getmap().get(pathid).get(0)),Integer.parseInt(q.getmap().get(pathid).get(1)),lfu,pathid,Integer.parseInt(q.getmap().get(pathid).get(2)));
                     }
                 }
             } else {
@@ -232,7 +178,7 @@ public class sigmod {
         }
     }
 
-    public void iscoincide(int start, int end, ArrayList<Integer> coincide,invertedlist NPI) {
+    public void iscoincide(int start, int end, ArrayList<Integer> coincide,invertedlist NPI ) {
         ArrayList<Integer> temp1 = new ArrayList<Integer>();
         ArrayList<Integer> temp2 = new ArrayList<Integer>();
         temp1.addAll(NPI.getmap().get(start));
@@ -280,7 +226,7 @@ public class sigmod {
         return shortpath;
     }
 
-    public void queryset(Query qs, Query q, int[] result, int[] rate, long[] time, Map<Integer, String> map, int SPCsize, int size,Subgraph NNI,invertedlist NPI) {
+    public void queryset(Query qs, Query q, int[] result, int[] rate, long[] time, Map<Integer, String> map, int SPCsize, int size, Subgraph NNI,invertedlist NPI) {
         Cal_accur cal = new Cal_accur();
         int count = 0;
         int flag = 0;
@@ -314,54 +260,6 @@ public class sigmod {
                 }
             }
         }
-    }
-    public void queryset1(Query qs, Query q, int[] result, int[] rate, long[] time, Map<Integer, String> map, int SPCsize, int size,Subgraph NNI,invertedlist NPI) {
-        Cal_accur cal = new Cal_accur();
-        int count = 0;
-        int flag = 0;
-        for (int key = SPCsize+1; key < result.length; key++) {
-            ArrayList<Integer> shortpath = new ArrayList<Integer>();
-            int s = Integer.parseInt(q.getmap().get(result[key]).get(0));
-            int e = Integer.parseInt(q.getmap().get(result[key]).get(1));
-            if (s != e) {
-                long start;
-                start = System.currentTimeMillis();
-                flag = lookup(s, e, shortpath,NNI,NPI);
-                time[3] += System.currentTimeMillis() - start;
-                count = count + 1;
-            }
-            if (flag == 1) {
-                rate[0] = rate[0] + 1;
-                ArrayList<Integer> temp = new ArrayList<Integer>();
-                temp.addAll(getshortpath(result[key], qs));
-//                System.out.println("search:");
-//                print(shortpath);
-//                System.out.println("actual:");
-//                print(temp);
-                if (cal.isequal(shortpath, temp)) {
-                    rate[1] = rate[1] + 1;
-                }
-                if (cal.isX_equal(shortpath, temp, 0.05, map)) {
-                    rate[2] = rate[2] + 1;
-                }
-                if (cal.isX_equal(shortpath, temp, 0.1, map)) {
-                    rate[3] = rate[3] + 1;
-                }
-            }
-            if (count == size) {
-                break;
-            }
-        }
-    }
-
-    public void print(ArrayList<Integer> node) {
-        for (int i = 0; i < node.size(); i++) {
-            System.out.print(node.get(i));
-            if (i != node.size() - 1) {
-                System.out.print("->");
-            }
-        }
-        System.out.println();
     }
 }
 class Key_value{

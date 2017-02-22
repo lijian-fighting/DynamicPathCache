@@ -9,7 +9,7 @@ public class LRUcache {
 	private int pathid;
 	private int sid;
 	private int eid;
-	private Date time;
+	private int time;
 	private Map<Integer,LRUcache> map = new HashMap<Integer,LRUcache>();
 	public void Setpathid(int id){
 		this.pathid = id;
@@ -32,11 +32,11 @@ public class LRUcache {
 	public int Geteid(){
 		return this.eid;
 	}
-	public void Settime(Date date){
+	public void Settime(int date){
 		this.time = date;
 	}
 	
-	public Date Gettime(){
+	public int Gettime(){
 		return this.time;
 	}
 	public Map<Integer, LRUcache> getmap(){

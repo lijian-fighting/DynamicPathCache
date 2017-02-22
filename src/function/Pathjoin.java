@@ -172,7 +172,7 @@ public class Pathjoin {
      * @param N pathjoin的参数
      * @return 返回结果，0表示没有成功的pathjoin，1表示成功pathjoin
      */
-    public int join(int s, int e, Subgraph nNI, pathinformation PII, invertedlist nPI, Date dt, LRUcache LRU, LFUcache LFU, int judge, ArrayList<Integer> shortpath,Map<Integer,String> qmap,double N){
+    public int join(int s, int e, Subgraph nNI, pathinformation PII, invertedlist nPI, int dt, LRUcache LRU, LFUcache LFU, int judge, ArrayList<Integer> shortpath,Map<Integer,String> qmap,double N){
         /**
          * vm 用于存放对应的点的编号
          */

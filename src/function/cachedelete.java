@@ -1,6 +1,7 @@
 package function;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import cache.LFUcache;
 import cache.LRUcache;
@@ -21,15 +22,16 @@ public class cachedelete {
 	public boolean isonly(int pid,int id,invertedlist nPI,int pathid){
 		 ArrayList<Integer> temp1 = new ArrayList<Integer>();	
 		 ArrayList<Integer> temp2 = new ArrayList<Integer>();
-		 temp1.addAll(nPI.getmap().get(pid));
-		 temp2.addAll(nPI.getmap().get(id));
-		 temp1.retainAll(temp2);
-		if((temp1.size() == 1)&&(temp1.get(0) == pathid)){
-			return true;
+		if(nPI.getmap().keySet().contains(pid)&&nPI.getmap().keySet().contains(id)) {
+			temp1.addAll(nPI.getmap().get(pid));
+			temp2.addAll(nPI.getmap().get(id));
+			temp1.retainAll(temp2);
+			if ((temp1.size() == 1) && (temp1.get(0) == pathid)) {
+				return true;
+			}
 		}
 		return false;
 	}
-
 	/**
 	 * 删除点边表和点点表相关内容
 	 * @param key 所有包含该路径的点集合
@@ -73,12 +75,6 @@ public class cachedelete {
 			nPI.mapout(pid.get(i));
 		}
 	}
-
-	/**
-	 * 删除PII
-	 * @param pathid 路径编号
-	 * @param pII mytest路径信息表
-	 */
 	public void deletePII(int pathid,pathinformation pII){
 		pII.mapout(pathid);
 	}
@@ -101,6 +97,7 @@ public class cachedelete {
 		lfu.mapout(pathid);
 	}
 
+
 	/**
 	 * 根据路径编号，删除相关内容
 	 * @param pathid 路径编号
@@ -115,8 +112,8 @@ public class cachedelete {
 		/**
 		 * 用于存放所有包含该路径的点集合
 		 */
-	    ArrayList<Integer> key = new ArrayList<Integer>();
-	    for(Integer m:nPI.getmap().keySet()){
+		ArrayList<Integer> key = new ArrayList<Integer>();
+		for(Integer m:nPI.getmap().keySet()){
 			if(nPI.getmap().get(m).contains(pathid)&&!key.contains(m)){
 				key.add(m);
 			}
